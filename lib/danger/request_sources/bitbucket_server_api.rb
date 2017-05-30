@@ -48,7 +48,12 @@ module Danger
 
       def post_comment(text)
         uri = URI("#{pr_api_endpoint}/comments")
-        body = { text: text }.to_json
+        body = {
+          text: text.encode("UTF-8", invalid: :replace,
+                                     undef: :replace,
+                                     replace: '')
+        }.to_json
+
         post(uri, body)
       end
 

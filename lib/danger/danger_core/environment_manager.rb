@@ -40,7 +40,11 @@ module Danger
       end
 
       raise_error_for_no_request_source(env, self.ui) unless self.request_source
+
       self.scm = self.request_source.scm
+
+      @previous_external_encondig = Encoding.default_external
+      @previous_internal_encondig = Encoding.default_internal
     end
 
     def pr?
@@ -51,6 +55,11 @@ module Danger
       request_source.fetch_details
     end
 
+    def set_unicode_encoding
+      Encoding.default_external = Encoding::UTF_8
+      Encoding.default_internal = Encoding::UTF_8
+    end
+
     def ensure_danger_branches_are_setup
       clean_up
 
@@ -58,9 +67,8 @@ module Danger
     end
 
     def clean_up
-      [EnvironmentManager.danger_base_branch, EnvironmentManager.danger_head_branch].each do |branch|
-        scm.exec("branch -D #{branch}") unless scm.exec("rev-parse --quiet --verify #{branch}").empty?
-      end
+      clean_up_branches
+      clean_up_encoding
     end
 
     def meta_info_for_head
@@ -117,6 +125,21 @@ module Danger
     def travis_note
       "\nTravis note: If you have an open source project, you should ensure 'Display value in build log' enabled for these flags, so that PRs from forks work." \
       "\nThis also means that people can see this token, so this account should have no write access to repos."
+    end
+
+    def clean_up_branches
+      [
+        EnvironmentManager.danger_base_branch,
+        EnvironmentManager.danger_head_branch
+      ].each do |branch|
+        branch_exists = scm.exec("rev-parse --quiet --verify #{branch}").empty?
+        scm.exec("branch -D #{branch}") unless branch_exists
+      end
+    end
+
+    def clean_up_encoding
+      Encoding.default_external = @previous_external_encondig
+      Encoding.default_internal = @previous_internal_encondig
     end
   end
 end

@@ -260,8 +260,11 @@ module Danger
     end
 
     def run(base_branch, head_branch, dangerfile_path, danger_id, new_comment)
-      # Setup internal state
+      # Setup plugins
       init_plugins
+
+      # Setup environment
+      env.set_unicode_encoding
       env.fill_environment_vars
 
       begin
