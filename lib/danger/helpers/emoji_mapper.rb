@@ -1,13 +1,13 @@
 module Danger
   class EmojiMapper
     DATA = {
-      "github" => {
+      "bitbucket_server" => {
         "no_entry_sign"    => "🚫",
         "warning"          => "⚠️",
         "book"             => "📖",
         "white_check_mark" => "✅"
       },
-      "bitbucket_server" => {
+      "github" => {
         "no_entry_sign"    => "\u274C",
         "warning"          => "⚠️",
         "book"             => "\u2728",
