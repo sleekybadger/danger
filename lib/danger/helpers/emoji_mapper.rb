@@ -16,6 +16,7 @@ module Danger
     }.freeze
 
     def initialize(template)
+      p template
       @template = DATA.include?(template) ? template : "github"
     end
 
