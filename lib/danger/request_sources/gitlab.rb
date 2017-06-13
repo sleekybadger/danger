@@ -9,7 +9,7 @@ module Danger
   module RequestSources
     class GitLab < RequestSource
       include Danger::Helpers::CommentsHelper
-      attr_accessor :mr_json, :commits_json
+      attr_accessor :mr_json,
 
       def self.env_vars
         ["DANGER_GITLAB_API_TOKEN"]
@@ -60,8 +60,14 @@ module Danger
       end
 
       def base_commit
-        first_commit_in_branch = self.commits_json.last.id
-        @base_commit ||= self.scm.exec "rev-parse #{first_commit_in_branch}^1"
+        @base_commit ||= begin
+          first_commit_in_branch = commits.last_page.last.id
+          self.scm.exec "rev-parse #{first_commit_in_branch}^1"
+        end
+      end
+
+      def head_commit
+        @head_commit ||= commits.first_page.first.id
       end
 
       def mr_comments
@@ -93,10 +99,9 @@ module Danger
       end
 
       def fetch_details
-        self.mr_json = client.merge_request(ci_source.repo_slug, self.ci_source.pull_request_id)
-        self.commits_json = client.merge_request_commits(
+        self.mr_json = client.merge_request(
           ci_source.repo_slug, self.ci_source.pull_request_id
-        ).auto_paginate
+        )
         self.ignored_violations = ignored_violations_from_pr
       end
 
@@ -156,6 +161,14 @@ module Danger
       # @return [String] The organisation name, is nil if it can't be detected
       def organisation
         nil # TODO: Implement this
+      end
+
+      private
+
+      def commits
+        @commits ||= client.merge_request_commits(
+          ci_source.repo_slug, self.ci_source.pull_request_id
+        )
       end
     end
   end

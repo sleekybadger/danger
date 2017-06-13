@@ -156,7 +156,7 @@ module Danger
     # @return [String]
     #
     def head_commit
-      @gitlab.commits_json.first.id
+      @gitlab.head_commit
     end
 
     # @!group GitLab Misc
