@@ -127,6 +127,9 @@ module Danger
                        previous_violations: previous_violations,
                                  danger_id: danger_id,
                                   template: "gitlab")
+          puts '=' * 5
+          p body
+          puts '=' * 5
 
           if editable_comments.empty?
             client.create_merge_request_comment(
